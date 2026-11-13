@@ -12,9 +12,9 @@ A reusable starting point for projects in the Mechanical Engineering Department.
 
 ## Project overview
 
-- **Project name:** [Enter project name]
+- **Project name:** [Walking beam mechanism]
 - **Problem / purpose:** [Describe the engineering need]
-- **Team:** [Names and responsibilities]
+- **Team:** [Chayakorn Tantasutanon 6730095421: Simscape Multibody]
 - **Status:** Planning
 - **Last updated:** [YYYY-MM-DD]
 
