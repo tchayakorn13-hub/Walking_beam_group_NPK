@@ -14,9 +14,9 @@ A reusable starting point for projects in the Mechanical Engineering Department.
 
 - **Project name:** [Walking beam mechanism]
 - **Problem / purpose:** [Describe the engineering need]
-- **Team:** [Chayakorn Tantasutanon 6730095421: Simscape Multibody]
+- **Team:** [Chayakorn Tantasutanon 6730095421: Simscape Multibody]|[Chayaphol Thawinsook 6730098321: Hardware]|[Nattapong Siriwatphatsakorn 6730150221: Matlab symbolic math]
 - **Status:** Planning
-- **Last updated:** [YYYY-MM-DD]
+- **Last updated:** [2026-11-18]
 
 ## Repository structure
 
