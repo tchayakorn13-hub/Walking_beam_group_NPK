@@ -9,7 +9,7 @@ Term project for **2103-322 Design of Mechanism (2569)**. A single crank drives 
 - **Team:**
   - Chayakorn Tantasutanon 6730095421: Simscape Multibody
   - Chayaphol Thawinsook 6730098321: Hardware
-  - Nattapong Siriwatphatsakorn 6730150221: MATLAB symbolic math
+  - Nattapong Siriwatphatsakorn 6730150221: MATLAB Symbolic Math
 - **Input condition (shared by all methods):** Link 2 rotates at a constant **ω₂ = 10 rad/s** (95.5 rpm, period T = 0.628 s)
 - **Status:** Planning
 - **Last updated:** 2026-11-19
