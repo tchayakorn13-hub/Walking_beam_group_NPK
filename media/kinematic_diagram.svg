@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="10 25 750 495" width="750" height="495" font-family="Segoe UI, Arial, Helvetica, sans-serif">
+  <rect x="10" y="25" width="750" height="495" fill="#ffffff"/>
+
+  <!-- Ground supports (link 1): inverted U with pin inside -->
+  <g stroke="#000" stroke-width="2" fill="none">
+    <!-- O2 -->
+    <path d="M328,374 L328,360 A12,12 0 0 1 352,360 L352,374"/>
+    <line x1="320" y1="374" x2="360" y2="374"/>
+    <path d="M324,374 l-6,8 M332,374 l-6,8 M340,374 l-6,8 M348,374 l-6,8 M356,374 l-6,8 M364,374 l-6,8"/>
+    <!-- O4 -->
+    <path d="M178.3,186.4 L178.3,172.4 A12,12 0 0 1 202.3,172.4 L202.3,186.4"/>
+    <line x1="170.3" y1="186.4" x2="178.3" y2="186.4"/><line x1="202.3" y1="186.4" x2="210.3" y2="186.4"/>
+    <path d="M174.3,186.4 l-6,8 M178.3,186.4 l-6,8 M206.3,186.4 l-6,8 M210.3,186.4 l-6,8"/>
+    <!-- O7 -->
+    <path d="M673.3,186.4 L673.3,172.4 A12,12 0 0 1 697.3,172.4 L697.3,186.4"/>
+    <line x1="665.3" y1="186.4" x2="673.3" y2="186.4"/><line x1="697.3" y1="186.4" x2="705.3" y2="186.4"/>
+    <path d="M669.3,186.4 l-6,8 M673.3,186.4 l-6,8 M701.3,186.4 l-6,8 M705.3,186.4 l-6,8"/>
+  </g>
+
+  <g stroke-width="3" fill="none" stroke-linejoin="round" stroke-linecap="round">
+    <!-- 8 -->
+    <polyline points="76,337.3 76,82.3 571,82.3 571,337.3" stroke="#999999"/>
+    <!-- 8: beam with teeth (beam -16.663..172.337 mm from C, 12 teeth, pitch 17, height 13.537 mm; 3 px/mm) -->
+    <path d="M26,82.3 H593 M29,82.3 V41.7 M80,82.3 V41.7 M131,82.3 V41.7 M182,82.3 V41.7 M233,82.3 V41.7 M284,82.3 V41.7 M335,82.3 V41.7 M386,82.3 V41.7 M437,82.3 V41.7 M488,82.3 V41.7 M539,82.3 V41.7 M590,82.3 V41.7" stroke="#999999"/>
+    <!-- 5 -->
+    <line x1="116.5" y1="472.4" x2="611.5" y2="472.4" stroke="#c2185b"/>
+    <!-- 3 -->
+    <polyline points="152.8,311.4 76,337.3 116.5,472.4" stroke="#e53935"/>
+    <line x1="152.8" y1="311.4" x2="317.5" y2="321" stroke="#e53935"/>
+    <!-- 6 -->
+    <polygon points="647.8,311.4 571,337.3 611.5,472.4" stroke="#d9a600"/>
+    <!-- 4, 7 -->
+    <line x1="190.3" y1="172.4" x2="152.8" y2="311.4" stroke="#1e63c7"/>
+    <line x1="685.3" y1="172.4" x2="647.8" y2="311.4" stroke="#1e63c7"/>
+    <!-- 2 -->
+    <line x1="340" y1="360" x2="317.5" y2="321" stroke="#2e7d32"/>
+  </g>
+
+  <!-- Rigid-corner fillets: show link 3 (D-C-B, C-B-A) and link 6 (E-G-F, G-F-E, F-E-G) are single rigid links -->
+  <!-- each fillet: arc tangent to both lines, filled solid (30 px legs; obtuse corner B: cubic curve tangent to both lines with both control points at B, legs 50 px toward C / 158 px toward A) -->
+  <g stroke="none">
+    <path d="M76,337.3 L84.61,366.04 L83.90,363.14 L83.46,360.20 L83.31,357.22 L83.44,354.24 L83.86,351.29 L84.56,348.40 L85.53,345.58 L86.77,342.87 L88.27,340.29 L90.00,337.87 L91.96,335.62 L94.13,333.57 L96.48,331.74 L98.99,330.15 L101.65,328.80 L104.43,327.71 Z M152.80,311.40 L105.42,327.38 C152.80,311.40 152.80,311.40 310.53,320.59 Z" fill="#e53935"/>
+    <path d="M571,337.3 L579.61,366.04 L578.90,363.14 L578.46,360.20 L578.31,357.22 L578.44,354.24 L578.86,351.29 L579.56,348.40 L580.53,345.58 L581.77,342.87 L583.27,340.29 L585.00,337.87 L586.96,335.62 L589.13,333.57 L591.48,331.74 L593.99,330.15 L596.65,328.80 L599.43,327.71 Z M647.8,311.4 L619.37,320.99 L621.53,320.42 L623.74,320.13 L625.97,320.15 L628.18,320.45 L630.33,321.05 L632.38,321.92 L634.29,323.06 L636.05,324.44 L637.60,326.04 L638.93,327.83 L640.01,329.78 L640.82,331.85 L641.36,334.02 L641.60,336.23 L641.55,338.46 L641.20,340.67 Z M611.5,472.4 L618.10,443.13 L617.71,444.37 L617.13,445.52 L616.37,446.56 L615.44,447.46 L614.38,448.20 L613.22,448.76 L611.98,449.12 L610.70,449.27 L609.41,449.21 L608.14,448.94 L606.94,448.46 L605.84,447.80 L604.85,446.96 L604.02,445.97 L603.36,444.87 L602.89,443.66 Z" fill="#d9a600"/>
+  </g>
+
+  <!-- Pins -->
+  <g fill="#fff" stroke="#000" stroke-width="2">
+    <circle cx="340" cy="360" r="5"/><circle cx="190.3" cy="172.4" r="5"/><circle cx="685.3" cy="172.4" r="5"/>
+    <circle cx="317.5" cy="321" r="5"/><circle cx="152.8" cy="311.4" r="5"/><circle cx="76" cy="337.3" r="5"/>
+    <circle cx="116.5" cy="472.4" r="5"/><circle cx="647.8" cy="311.4" r="5"/><circle cx="571" cy="337.3" r="5"/>
+    <circle cx="611.5" cy="472.4" r="5"/>
+  </g>
+
+  <!-- Joint labels -->
+  <g font-size="20" font-weight="600" fill="#000" stroke="#fff" stroke-width="4" paint-order="stroke">
+    <text x="358" y="358">O₂</text><text x="208" y="170">O₄</text><text x="703" y="170">O₇</text>
+    <text x="322" y="310">A</text><text x="126" y="302">B</text><text x="50" y="344">C</text>
+    <text x="92" y="500">D</text><text x="618" y="500">E</text><text x="658" y="302">F</text>
+    <text x="546" y="334">G</text>
+    <text x="54" y="106">H</text><text x="579" y="106">I</text>
+  </g>
+  <g fill="#999999"><circle cx="76" cy="82.3" r="4"/><circle cx="571" cy="82.3" r="4"/></g>
+
+  <!-- Link numbers -->
+  <g font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" text-anchor="middle">
+    <text x="318" y="350" fill="#2e7d32">2</text><text x="113" y="383" fill="#e53935">3</text>
+    <text x="158" y="240" fill="#1e63c7">4</text><text x="364" y="492" fill="#c2185b">5</text>
+    <text x="610" y="383" fill="#d9a600">6</text><text x="681" y="240" fill="#1e63c7">7</text>
+    <text x="310" y="104" fill="#999999">8</text>
+    <text x="190" y="154">1</text><text x="340" y="400">1</text><text x="685" y="154">1</text>
+  </g>
+</svg>

@@ -14,19 +14,21 @@ function R = plot_F3_vs_theta2(userCfg)
 %     2. Data loading    อ่านสัญญาณจาก base workspace (หรือ out) แล้วจัดให้อยู่บนแกนเวลาเดียวกัน
 %     3. Preprocessing   เลือกช่วงมุมที่วิเคราะห์ และพับมุมให้อยู่ในช่วง 0..thRange
 %     4. Analysis        หาจุด v = 0 และคำนวณค่าของแต่ละช่วง v = 0 -> v = 0
-%                          delta_x = x(theta_end) - x(theta_start)
-%                          v_avg   = (1/theta_span) * integral(v dtheta)
+%                          delta_x     = x(theta_end) - x(theta_start)
+%                          t_round     = 360 / omega2  (เวลาที่ Link 2 หมุนครบ 1 รอบ)
+%                          v_per_round = delta_x / t_round
 %     5. Reporting       ส่งผลไป base workspace และพิมพ์สรุปใน Command Window
-%     6. Visualization   วาดกราฟ x, v, a พร้อมเส้น v = 0 และค่าเฉลี่ยของแต่ละช่วง
+%     6. Visualization   วาดกราฟ x, v, a พร้อมเส้น v = 0, delta_x และ v_per_round ของแต่ละช่วง
 %
 %   ผลลัพธ์ R
 %     R.th, R.x, R.v, R.a   ข้อมูลที่ใช้ plot (theta ในช่วง 0..thRange)
 %     R.thZ, R.xZ, R.aZ     จุดที่ v = 0 (มุม, x และ a ณ จุดนั้น)
+%     R.omega, R.t_round    ความเร็วเชิงมุม Link 2 (deg/s) และเวลาหมุน 1 รอบ (s)
 %     R.seg                 table ของแต่ละช่วง v = 0 -> v = 0
 %     R.cfg                 ค่าตั้งที่ใช้
 %
 %   ตัวแปรที่ส่งออกไป base workspace
-%     F3_result, F3_seg, delta_x, v_avg
+%     F3_result, F3_seg, delta_x, v_per_round, t_round
 %
 %   ให้รันอัตโนมัติหลัง simulation จบ
 %     1) Model Settings (Ctrl+E) > Data Import/Export > เอาติ๊ก "Single simulation output" ออก
@@ -65,6 +67,7 @@ cfg.unitA       = 'mm/s^2';
 cfg.thRange     = 720;        % ช่วงแกนมุม (deg): 360 = 1 รอบ, 720 = 2 รอบ
 cfg.lastRevOnly = true;       % true = ใช้เฉพาะ thRange องศาสุดท้าย (ตัด transient)
 cfg.theta0      = 0;          % offset มุม (deg) ให้ 0° ตรงกับแบบ
+cfg.omega       = 10;         % ω2 (rad/s) ใช้เฉพาะเมื่อข้อมูลไม่มีเวลา (ปกติคำนวณจาก theta2 กับเวลา)
 end
 
 function cfg = mergeConfig(cfg, userCfg)
@@ -96,6 +99,18 @@ src   = pickSource(names);
 data.x = alignToTime(tX, x, tTh);
 data.v = alignToTime(tV, v, tTh);
 data.a = alignToTime(tA, a, tTh);
+data.omega = crankSpeed(tTh, data.th, cfg);
+end
+
+function omega = crankSpeed(t, th, cfg)
+% ความเร็วเชิงมุมเฉลี่ยของ Link 2 (deg/s) = ความชันของเส้นตรงที่ fit กับ theta2(t)
+% ถ้าไม่มีข้อมูลเวลา ใช้ cfg.omega (rad/s) แทน
+if numel(t) >= 2 && t(end) > t(1)
+    p = polyfit(t, th, 1);
+    omega = abs(p(1));
+else
+    omega = rad2deg(cfg.omega);
+end
 end
 
 function src = pickSource(names)
@@ -199,6 +214,7 @@ win.th = mod(th(idx), thRange);                       % มุม 0 ตรงก
 win.x  = data.x(idx);
 win.v  = data.v(idx);
 win.a  = data.a(idx);
+win.omega = data.omega;
 
 if cfg.lastRevOnly
     % เรียงตามมุม เพื่อไม่ให้มีเส้นกระโดดตรงรอยต่อ thRange -> 0
@@ -216,15 +232,17 @@ end
 %% 4. Analysis
 %% =====================================================================
 function R = analyzeMotion(win, cfg)
-% หาจุด v = 0 แล้วคำนวณ delta_x, v_avg ของแต่ละช่วง
+% หาจุด v = 0 แล้วคำนวณ delta_x และ v_per_round ของแต่ละช่วง
 R.th = win.th;  R.x = win.x;  R.v = win.v;  R.a = win.a;
 
 R.thZ = findZeroCrossings(win.th, win.v);
 R.xZ  = interp1(win.th, win.x, R.thZ);
 R.aZ  = interp1(win.th, win.a, R.thZ);
 
-R.seg = computeSegments(win, R.thZ, R.xZ);
-R.cfg = cfg;
+R.omega   = win.omega;                                 % deg/s
+R.t_round = 360 / R.omega;                             % s ต่อ 1 รอบของ Link 2
+R.seg     = computeSegments(R.thZ, R.xZ, R.t_round);
+R.cfg     = cfg;
 end
 
 function thZ = findZeroCrossings(th, v)
@@ -248,33 +266,25 @@ end
 thZ = thZ([true; diff(thZ) > 0.5]);                   % ตัดจุดซ้ำ (ห่างกันไม่ถึง 0.5 deg)
 end
 
-function seg = computeSegments(win, thZ, xZ)
-% ค่าของแต่ละช่วง v = 0 -> v = 0 ถัดไป (ใช้ trapz อินทิเกรตเทียบกับมุม)
-% หมายเหตุ: ไม่คำนวณความเร่งเฉลี่ย เพราะช่วงเริ่มและจบที่ v = 0
-%           จึงได้ a_avg = (v_end - v_start)/dt = 0 เสมอ
+function seg = computeSegments(thZ, xZ, t_round)
+% ค่าของแต่ละช่วง v = 0 -> v = 0 ถัดไป
+%   delta_x     = ระยะที่ F3 เคลื่อนในช่วงนั้น
+%   v_per_round = delta_x / t_round  (หารด้วยเวลาหมุน 1 รอบ เพื่อเทียบกับ specimen ได้)
 nSeg = numel(thZ) - 1;
 if nSeg < 1
     seg = table();
     return
 end
 
-seg_no   = (1:nSeg)';
-th_start = thZ(1:end-1);
-th_end   = thZ(2:end);
-th_span  = th_end - th_start;
-delta_x  = zeros(nSeg, 1);
-v_avg    = zeros(nSeg, 1);
+seg_no      = (1:nSeg)';
+th_start    = thZ(1:end-1);
+th_end      = thZ(2:end);
+th_span     = th_end - th_start;
+delta_x     = xZ(2:end) - xZ(1:end-1);
+v_per_round = delta_x / t_round;
 
-for i = 1:nSeg
-    in = win.th > th_start(i) & win.th < th_end(i) & ~isnan(win.v);
-    tt = [th_start(i); win.th(in); th_end(i)];        % ปลายช่วงใช้ค่าที่ interpolate
-    vv = [0;           win.v(in);  0];                % ปลายช่วง v = 0 พอดี
-    delta_x(i) = xZ(i+1) - xZ(i);
-    v_avg(i)   = trapz(tt, vv) / th_span(i);
-end
-
-seg = table(seg_no, th_start, th_end, th_span, delta_x, v_avg, ...
-            'VariableNames', {'seg', 'th_start', 'th_end', 'th_span', 'delta_x', 'v_avg'});
+seg = table(seg_no, th_start, th_end, th_span, delta_x, v_per_round, ...
+            'VariableNames', {'seg', 'th_start', 'th_end', 'th_span', 'delta_x', 'v_per_round'});
 end
 
 
@@ -286,9 +296,10 @@ function exportToWorkspace(R)
 assignin('base', 'F3_result', R);
 if height(R.seg) > 0
     assignin('base', 'F3_seg',  R.seg);
-    assignin('base', 'delta_x', R.seg.delta_x);
-    assignin('base', 'v_avg',   R.seg.v_avg);
+    assignin('base', 'delta_x',     R.seg.delta_x);
+    assignin('base', 'v_per_round', R.seg.v_per_round);
 end
+assignin('base', 't_round', R.t_round);
 end
 
 function printReport(R)
@@ -301,10 +312,12 @@ for i = 1:numel(R.thZ)
             R.thZ(i), R.xZ(i), cfg.unitX, R.aZ(i), cfg.unitA);
 end
 
+fprintf('\nomega2 = %.3f rad/s  ->  t_round = %.4f s ต่อ 1 รอบ\n', deg2rad(R.omega), R.t_round);
+
 if height(R.seg) > 0
-    fprintf('\nช่วง V=0 -> V=0   [delta_x: %s, v_avg: %s, theta: deg]\n', ...
+    fprintf('\nช่วง V=0 -> V=0   [delta_x: %s, v_per_round = delta_x/t_round: %s, theta: deg]\n', ...
             cfg.unitX, cfg.unitV);
-    fprintf('(ส่งออกไป workspace: F3_result, F3_seg, delta_x, v_avg)\n');
+    fprintf('(ส่งออกไป workspace: F3_result, F3_seg, delta_x, v_per_round, t_round)\n');
     disp(R.seg);
 end
 
@@ -398,18 +411,18 @@ end
 end
 
 function drawSegments(axs, S, cfg, style)
-% Δx บนกราฟ x และเส้นประ v_avg บนกราฟ v ของแต่ละช่วง
+% Δx บนกราฟ x และ v_per_round = Δx / t_round บนกราฟ v ของแต่ละช่วง
 c = style.segColor;
 lbl = {'Color', c, 'FontWeight', 'bold', 'BackgroundColor', 'w', 'Margin', 1, ...
        'HorizontalAlignment', 'center'};
+yv = 0.5 * max(abs(axs(2).YLim));
 for i = 1:height(S)
-    th1 = S.th_start(i);  th2 = S.th_end(i);  thm = (th1 + th2) / 2;
+    thm = (S.th_start(i) + S.th_end(i)) / 2;
 
     text(axs(1), thm, mean(axs(1).YLim), ...
          sprintf('\\Deltax = %.2f %s', S.delta_x(i), cfg.unitX), lbl{:});
 
-    plot(axs(2), [th1 th2], S.v_avg(i) * [1 1], '--', 'Color', c, 'LineWidth', 1.5);
-    text(axs(2), thm, S.v_avg(i), sprintf('v_{avg} = %.2f', S.v_avg(i)), ...
-         lbl{:}, 'VerticalAlignment', 'bottom');
+    text(axs(2), thm, sign(S.delta_x(i)) * yv, ...
+         sprintf('v_{round} = %.2f %s', S.v_per_round(i), cfg.unitV), lbl{:});
 end
 end
